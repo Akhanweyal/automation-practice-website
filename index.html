@@ -47,8 +47,8 @@
         button:hover { background-color: #0097a7; }
         .radio-group { margin: 10px 0; }
         .radio-group input { width: auto; margin-right: 10px; }
-        #message, #total, #checkout-summary, #register-message, #welcome-message { color: green; margin-top: 10px; }
-        #error-message, #checkout-error { color: red; margin-top: 10px; }
+        #message, #total, #checkout-summary, #register-message, #welcome-message, #upload-success { color: green; margin-top: 10px; }
+        #error-message, #checkout-error, #upload-error { color: red; margin-top: 10px; }
         #cart-items { margin-top: 10px; }
         .cart-item { background-color: #00bcd4; color: white; padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
         .cart-item button { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; }
@@ -88,6 +88,7 @@
                         <a href="#profile" class="hidden" id="profile-link">Profile</a>
                     </div>
                 </div>
+                <a href="#test-scenarios" onclick="showSection('test-scenarios')">Test Scenarios</a>
             </div>
             <div class="search-bar">
                 <select id="category-filter" data-test="category-filter" onchange="filterCategory(this.value)">
@@ -382,6 +383,21 @@
         <div id="checkout-summary" data-test="summary-display"></div>
     </div>
 
+    <!-- New Test Scenarios Section -->
+    <div class="section container" id="test-scenarios">
+        <h2>Test Scenarios</h2>
+        <div class="form-group">
+            <label for="testFileUpload">Upload Test Scenario File:</label>
+            <input type="file" id="testFileUpload" data-test="test-file-upload" accept=".txt,.pdf,.doc,.docx">
+            <button onclick="uploadTestFile()" data-test="upload-test-button">Upload</button>
+        </div>
+        <div id="upload-success"></div>
+        <div id="upload-error"></div>
+        <div class="form-group">
+            <button id="downloadTestFile" data-test="download-test-button" onclick="downloadTestFile()" disabled>Download Last Uploaded File</button>
+        </div>
+    </div>
+
     <script>
         // Load registered users from localStorage on page load
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
@@ -392,6 +408,8 @@
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let previousSection = 'shop'; // Track the previous section for back button
+        let uploadedFileData = null; // Store uploaded file data
+        let uploadedFileName = null; // Store uploaded file name
 
         // Promotional data for multiple items
         const promoItems = [
@@ -755,6 +773,57 @@
             showSection('shop');
             updateAccountSection();
             updateWelcomeMessage();
+        }
+
+        // Upload Test File Function
+        function uploadTestFile() {
+            const fileInput = document.getElementById('testFileUpload');
+            const uploadSuccess = document.getElementById('upload-success');
+            const uploadError = document.getElementById('upload-error');
+            const downloadButton = document.getElementById('downloadTestFile');
+
+            uploadSuccess.textContent = '';
+            uploadError.textContent = '';
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                uploadError.textContent = 'Please select a file to upload.';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                uploadedFileData = e.target.result; // Store file content
+                uploadedFileName = file.name; // Store file name
+                uploadSuccess.textContent = `File "${uploadedFileName}" uploaded successfully!`;
+                downloadButton.disabled = false; // Enable download button
+                fileInput.value = ''; // Reset file input
+            };
+
+            reader.onerror = function() {
+                uploadError.textContent = 'Error reading the file. Please try again.';
+            };
+
+            reader.readAsText(file); // Read as text; adjust based on file type if needed
+        }
+
+        // Download Test File Function
+        function downloadTestFile() {
+            if (!uploadedFileData || !uploadedFileName) {
+                document.getElementById('upload-error').textContent = 'No file available for download.';
+                return;
+            }
+
+            const blob = new Blob([uploadedFileData], { type: 'text/plain' }); // Adjust MIME type if needed
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = uploadedFileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
         }
     </script>
 </body>
