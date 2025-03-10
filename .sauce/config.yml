@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: cypress
+sauce:
+  region: us-west-1
+  concurrency: 1
+  metadata:
+    tags:
+      - e2e
+      - release team
+    build: cypress-build-LD3WC
+cypress:
+  version: 14.0.0
+  configFile: "cypress.config.js"
+rootDir: ./
+suites:
+  - name: "Main Tests"
+    browser: "chrome"
+    platformName: "Windows 11"
+    config:
+      specPattern: ["**/*.cy.js"]
+artifacts:
+  retain:
+    "./allure-results": allure-results.zip
+npm:
+  dependencies:
+    - allure-cypress
+    - mongodb
+reporters:
+  spotlight:
+    enabled: true
