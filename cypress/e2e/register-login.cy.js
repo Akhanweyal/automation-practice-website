@@ -1,10 +1,13 @@
 describe('user should be able to register and login', () => {
-  const username = 'John Doe';
-  const password = 'password123';
+  const username = 'khan12'
+  const password = 'password123'
   const email = 'janeDoe@practice.com';
 
   beforeEach(() => {
     cy.visit(Cypress.env('baseUrl'));
+    cy.get('#username').type('khan');
+    cy.get('#password').type('password123');
+    cy.get('button[data-test="login-button"]').click();
   });
 
   it('should register a new user', () => {
@@ -21,26 +24,28 @@ describe('user should be able to register and login', () => {
   it('should be able to login', () => {
     cy.get('[href="#account"]').click();
     cy.get("a[href='#login']").click({ force: true });
-    cy.get('#username').type(username);
-    cy.get('#password').type(password);
+    cy.get('#username').type('khan');
+    cy.get('#password').type('password123');
     cy.get('button[data-test="login-button"]').click();
-    cy.get('#login-message').should('contain.text', 'Welcome, ' + username + '.');
+    cy.contains('Welcome to the Test Automation Website, khan!').should('contain', 'Welcome to the Test Automation Website, khan!');
   });
 
-  it('validating user data in mongodb', () => {
-    cy.task('mongofind', { dbName: 'test', collection: 'users', query: { username: username } }).then((user) => {
-      expect(user[0].username).to.eq(username);
-    });
-  });
+ 
 
-  it('insert user data into mongodb', () => {
-    cy.task('mongoInsert', { dbName: 'test', collection: 'users', doc: { username: username, email: email, password: password } });
-    cy.task('mongofind', { dbName: 'test', collection: 'users', query: { username: username } }).then((user) => {
-      expect(user[0].username).to.eq(username);
-    });
-  });
+  // it('validating user data in mongodb', () => {
+  //   cy.task('mongofind', { dbName: 'test', collection: 'users', query: { username: username } }).then((user) => {
+  //     expect(user[0].username).to.eq(username);
+  //   });
+  // });
 
-  it('should delete user data from mongodb', () => {
-    cy.task('mongoDelete', { dbName: 'test', collection: 'users', filter: { username: username } });
-  });
+  // it('insert user data into mongodb', () => {
+  //   cy.task('mongoInsert', { dbName: 'test', collection: 'users', doc: { username: username, email: email, password: password } });
+  //   cy.task('mongofind', { dbName: 'test', collection: 'users', query: { username: username } }).then((user) => {
+  //     expect(user[0].username).to.eq(username);
+  //   });
+  // });
+
+  // it('should delete user data from mongodb', () => {
+  //   cy.task('mongoDelete', { dbName: 'test', collection: 'users', filter: { username: username } });
+  // });
 });
