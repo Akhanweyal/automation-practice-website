@@ -625,43 +625,58 @@
 
         // Select Product and Add to Cart
         function selectProduct(name, price) {
-            const productCard = document.querySelector(`.product-card[data-test*="${name.toLowerCase().replace(/\s+/g, '-')}-"]`);
-            if (productCard) {
-                const loadingIndicator = productCard.querySelector('.loading-indicator');
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'flex';
-                }
-            }
-
-            let quantityInput = prompt(`Enter quantity for ${name} (max 10):`, 1);
-            let quantity = parseInt(quantityInput);
-            if (isNaN(quantity) || quantity < 1 || quantity > 10) {
-                alert("Please enter a valid quantity between 1 and 10.");
-                if (productCard && loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                }
-                return;
-            }
-            let finalPrice = price;
-            let discountApplied = null;
-            const promo = promoItems.find(p => p.item === name);
-            if (promo) {
-                finalPrice = promo.discountedPrice;
-                discountApplied = promo.discountPercentage;
-            }
-            cart.push({ name, originalPrice: price, finalPrice, quantity, discountApplied });
-            saveData();
-            updateCartDisplay();
-            updateTotal();
-
-            if (productCard && loadingIndicator) {
-                setTimeout(() => {
-                    loadingIndicator.style.display = 'none';
-                }, 300);
-            }
-
-            alert(`${name} (x${quantity}) added to cart!${discountApplied ? ` (${discountApplied}% Discount Applied)` : ''}`);
+    const productCard = document.querySelector(`.product-card[data-test*="${name.toLowerCase().replace(/\s+/g, '-')}-"]`);
+    if (productCard) {
+        const loadingIndicator = productCard.querySelector('.loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'flex';
         }
+    }
+
+    // Use an input field for quantity instead of prompt
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'number';
+    quantityInput.min = '1';
+    quantityInput.max = '10';
+    quantityInput.value = '1';
+    quantityInput.style.position = 'fixed';
+    quantityInput.style.top = '0';
+    quantityInput.style.left = '0';
+    quantityInput.style.opacity = '0';
+    document.body.appendChild(quantityInput);
+
+    let quantity = parseInt(quantityInput.value);
+    if (isNaN(quantity) || quantity < 1 || quantity > 10) {
+        // Display error message in DOM instead of alert
+        document.getElementById('message').textContent = "Please enter a valid quantity between 1 and 10.";
+        if (productCard && loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        return;
+    }
+
+    let finalPrice = price;
+    let discountApplied = null;
+    const promo = promoItems.find(p => p.item === name);
+    if (promo) {
+        finalPrice = promo.discountedPrice;
+        discountApplied = promo.discountPercentage;
+    }
+
+    cart.push({ name, originalPrice: price, finalPrice, quantity, discountApplied });
+    saveData();
+    updateCartDisplay();
+    updateTotal();
+
+    if (productCard && loadingIndicator) {
+        setTimeout(() => {
+            loadingIndicator.style.display = 'none';
+        }, 300);
+    }
+
+    // Display success message in DOM instead of alert
+    document.getElementById('message').textContent = `${name} (x${quantity}) added to cart!${discountApplied ? ` (${discountApplied}% Discount Applied)` : ''}`;
+}
 
         // Add to Favorites
         function addToFavorites(name, price) {
