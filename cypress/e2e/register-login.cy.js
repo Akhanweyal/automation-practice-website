@@ -5,9 +5,9 @@ describe('user should be able to register and login', () => {
 
   beforeEach(() => {
     cy.visit(Cypress.env('baseUrl'));
-    cy.get('#username').type('khan');
-    cy.get('#password').type('password123');
-    cy.get('button[data-test="login-button"]').click();
+  //   cy.get('#username').type('khan');
+  //   cy.get('#password').type('password123');
+  //   cy.get('button[data-test="login-button"]').click();
   });
 
   it('should register a new user', () => {
