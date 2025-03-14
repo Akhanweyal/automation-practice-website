@@ -45,3 +45,18 @@ Cypress.Commands.add('login', (username, password) => {
   cy.get('#password').type(password);
   cy.get('#loginForm').find('button').click();
 });
+
+Cypress.Commands.add('selectCategoryAndAddItemsToCart', (categoryName, itemSelector, itemCount) => {
+  cy.contains('a', categoryName).realHover();
+  cy.realPress('ArrowDown');
+  cy.realPress('Enter');
+  cy.wait(3000);
+  cy.get('.dropdown-content').should('exist').find('a').then((el) => {
+    cy.wrap(el).contains(categoryName).click({ force: true }); // Use { force: true } to force the click action
+
+    // Add items to cart
+    for (let i = 1; i <= itemCount; i++) {
+      cy.get(`[${itemSelector}${i}"]`).scrollIntoView().click({ force: true });
+    }
+  });
+});
