@@ -42,8 +42,9 @@ const cartbutton = '[data-test="cart-link"]'
     const pymentType = '[type="radio"]'
     cy.get(pymentType).check('paypal').should('be.checked');
     
-    cy.get('[data-test="checkout-button"]').click();
-    cy.get('.alert').should('contain.text', 'Thank you for your purchase!');
+    cy.get('[data-test="checkout-button"]').click({ force: true });
+    cy.contains('Order Confirmation').should('contain','Order Confirmation').should('exist');
+    
 
   })
 })

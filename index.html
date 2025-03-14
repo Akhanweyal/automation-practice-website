@@ -62,8 +62,9 @@
         #message, #total, #checkout-summary, #register-message, #welcome-message, #upload-success { color: green; margin-top: 10px; }
         #error-message, #checkout-error, #upload-error { color: red; margin-top: 10px; }
         #cart-items { margin-top: 10px; }
-        .cart-item { background-color: #00bcd4; color: white; padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-item { background-color: #00bcd4; color: white; padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .cart-item button { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        .cart-item input[type="number"] { width: 50px; margin: 0 5px; padding: 2px; }
         .disabled { opacity: 0.5; pointer-events: none; }
         .hidden { display: none; }
         .articles { display: flex; justify-content: space-between; margin-top: 20px; }
@@ -79,7 +80,6 @@
         .table-scenario th, .table-scenario td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .table-scenario th { background-color: #00bcd4; color: white; }
 
-        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             .header-main { flex-direction: column; padding: 10px; }
             .nav { flex-direction: column; margin: 10px 0; width: 100%; }
@@ -87,7 +87,7 @@
             .nav .dropdown-content { position: static; width: 100%; box-shadow: none; }
             .search-bar { flex-direction: column; margin: 10px 0; width: 100%; }
             .search-bar select, .search-bar input[type="text"], .search-bar button { width: 100%; margin: 5px 0; }
-            .search-bar .clear-btn { display: none; } /* Hide clear button on mobile for simplicity */
+            .search-bar .clear-btn { display: none; }
             .promo-banner { flex-direction: column; padding: 10px; }
             .promo-banner img { max-height: 80px; margin: 10px 0; }
             .category-list { flex-direction: column; }
@@ -97,6 +97,8 @@
             .article-card { margin-right: 0; margin-bottom: 20px; }
             .section, .container, .confirmation-page { max-width: 100%; padding: 10px; }
             .header-main > div:last-child { display: flex; justify-content: center; gap: 10px; }
+            .cart-item { flex-direction: column; align-items: flex-start; }
+            .cart-item input[type="number"] { width: 100%; margin: 5px 0; }
         }
     </style>
 </head>
@@ -487,6 +489,44 @@
             <button id="toggleVisibility" data-test="toggle-visibility-button" onclick="toggleTestContent()">Toggle Content</button>
             <div id="toggle-content" data-test="toggle-content">This content can be toggled on/off</div>
         </div>
+        <!-- New Test Scenario: Order History Table -->
+        <div class="table-scenario" style="margin-top: 20px;">
+            <h3>Test Scenario: Order History</h3>
+            <table data-test="order-history-table">
+                <thead>
+                    <tr>
+                        <th data-test="order-header-id">Order ID</th>
+                        <th data-test="order-header-date">Date</th>
+                        <th data-test="order-header-item">Item</th>
+                        <th data-test="order-header-quantity">Quantity</th>
+                        <th data-test="order-header-total">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-test="order-row-1">
+                        <td data-test="order-1-id">ORD001</td>
+                        <td data-test="order-1-date">2025-03-01</td>
+                        <td data-test="order-1-item">Smartwatch</td>
+                        <td data-test="order-1-quantity">1</td>
+                        <td data-test="order-1-total">$199</td>
+                    </tr>
+                    <tr data-test="order-row-2">
+                        <td data-test="order-2-id">ORD002</td>
+                        <td data-test="order-2-date">2025-03-02</td>
+                        <td data-test="order-2-item">Phone Case</td>
+                        <td data-test="order-2-quantity">2</td>
+                        <td data-test="order-2-total">$20</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- New Test Scenario: Color Picker -->
+        <div class="form-group" style="margin-top: 20px;">
+            <h3>Test Scenario: Color Selection</h3>
+            <label for="colorPicker">Select Product Color:</label>
+            <input type="color" id="colorPicker" data-test="color-picker" value="#00bcd4">
+            <div id="colorResult" data-test="color-result" style="margin-top: 10px;">Selected color: #00bcd4</div>
+        </div>
     </div>
 
     <script>
@@ -601,6 +641,7 @@
             saveData();
             updateCartCount();
             updatePromoBanner();
+            document.getElementById('colorPicker')?.addEventListener('change', updateColorResult);
         });
 
         function searchProducts() {
@@ -687,26 +728,7 @@
                 }
             }
 
-            const quantityInput = document.createElement('input');
-            quantityInput.type = 'number';
-            quantityInput.min = '1';
-            quantityInput.max = '10';
-            quantityInput.value = '1';
-            quantityInput.style.position = 'fixed';
-            quantityInput.style.top = '0';
-            quantityInput.style.left = '0';
-            quantityInput.style.opacity = '0';
-            document.body.appendChild(quantityInput);
-
-            let quantity = parseInt(quantityInput.value);
-            if (isNaN(quantity) || quantity < 1 || quantity > 10) {
-                document.getElementById('message').textContent = "Please enter a valid quantity between 1 and 10.";
-                if (productCard && loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                }
-                return;
-            }
-
+            let existingItem = cart.find(item => item.name === name);
             let finalPrice = price;
             let discountApplied = null;
             const promo = promoItems.find(p => p.item === name);
@@ -715,7 +737,12 @@
                 discountApplied = promo.discountPercentage;
             }
 
-            cart.push({ name, originalPrice: price, finalPrice, quantity, discountApplied });
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ name, originalPrice: price, finalPrice, quantity: 1, discountApplied });
+            }
+
             saveData();
             updateCartDisplay();
             updateTotal();
@@ -726,7 +753,7 @@
                 }, 300);
             }
 
-            document.getElementById('message').textContent = `${name} (x${quantity}) added to cart!${discountApplied ? ` (${discountApplied}% Discount Applied)` : ''}`;
+            document.getElementById('message').textContent = `${name} (x${existingItem ? existingItem.quantity : 1}) added to cart!${discountApplied ? ` (${discountApplied}% Discount Applied)` : ''}`;
         }
 
         function addToFavorites(name, price) {
@@ -743,9 +770,29 @@
         function updateCartDisplay() {
             const cartItems = document.getElementById('cart-items');
             cartItems.innerHTML = '<h3>Cart Items:</h3>';
-            cart.forEach(item => {
-                cartItems.innerHTML += `<div class="cart-item">${item.name} - $${item.finalPrice} x ${item.quantity} = $${(item.finalPrice * item.quantity).toFixed(2)} ${item.discountApplied ? `(${item.discountApplied}% Discount)` : ''} <button onclick="removeFromCart('${item.name}')">Remove</button></div>`;
+            cart.forEach((item, index) => {
+                cartItems.innerHTML += `
+                    <div class="cart-item">
+                        ${item.name} - $${item.finalPrice} x 
+                        <input type="number" min="1" max="10" value="${item.quantity}" onchange="updateQuantity(${index}, this.value)" data-test="cart-quantity-${index}">
+                        = $${(item.finalPrice * item.quantity).toFixed(2)} 
+                        ${item.discountApplied ? `(${item.discountApplied}% Discount)` : ''} 
+                        <button onclick="removeFromCart('${item.name}')">Remove</button>
+                    </div>`;
             });
+        }
+
+        function updateQuantity(index, newQuantity) {
+            newQuantity = parseInt(newQuantity);
+            if (isNaN(newQuantity) || newQuantity < 1 || newQuantity > 10) {
+                alert('Please enter a valid quantity between 1 and 10.');
+                updateCartDisplay();
+                return;
+            }
+            cart[index].quantity = newQuantity;
+            saveData();
+            updateCartDisplay();
+            updateTotal();
         }
 
         function removeFromCart(name) {
@@ -772,7 +819,7 @@
         }
 
         function updateCartCount() {
-            document.getElementById('cart-count').textContent = cart.length;
+            document.getElementById('cart-count').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
         }
 
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
@@ -981,6 +1028,12 @@
         function toggleTestContent() {
             const toggleContent = document.getElementById('toggle-content');
             toggleContent.style.display = toggleContent.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateColorResult() {
+            const colorPicker = document.getElementById('colorPicker');
+            const colorResult = document.getElementById('colorResult');
+            colorResult.textContent = `Selected color: ${colorPicker.value}`;
         }
     </script>
 </body>
