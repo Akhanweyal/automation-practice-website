@@ -54,7 +54,7 @@
         .container { max-width: 600px; margin: 20px auto; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; }
-        input, select, button { padding: 8px; width: 100%; margin-top: 5px; }
+        input, select, button { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
         button { background-color: #00bcd4; color: white; border: none; cursor: pointer; }
         button:hover { background-color: #0097a7; }
         .radio-group { margin: 10px 0; }
@@ -70,6 +70,34 @@
         .article-card { flex: 1; margin-right: 20px; text-align: center; }
         .article-card img { max-width: 100%; height: auto; }
         .article-card:last-child { margin-right: 0; }
+        .confirmation-page { max-width: 800px; margin: 20px auto; padding: 20px; text-align: center; }
+        .confirmation-page table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .confirmation-page th, .confirmation-page td { border: 1px solid #ddd; padding: 8px; }
+        .confirmation-page th { background-color: #f8f8f8; }
+        .table-scenario { margin-top: 20px; }
+        .table-scenario table { width: 100%; border-collapse: collapse; }
+        .table-scenario th, .table-scenario td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table-scenario th { background-color: #00bcd4; color: white; }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .header-main { flex-direction: column; padding: 10px; }
+            .nav { flex-direction: column; margin: 10px 0; width: 100%; }
+            .nav a, .nav .dropdown { margin: 5px 0; width: 100%; text-align: center; }
+            .nav .dropdown-content { position: static; width: 100%; box-shadow: none; }
+            .search-bar { flex-direction: column; margin: 10px 0; width: 100%; }
+            .search-bar select, .search-bar input[type="text"], .search-bar button { width: 100%; margin: 5px 0; }
+            .search-bar .clear-btn { display: none; } /* Hide clear button on mobile for simplicity */
+            .promo-banner { flex-direction: column; padding: 10px; }
+            .promo-banner img { max-height: 80px; margin: 10px 0; }
+            .category-list { flex-direction: column; }
+            .category-column { margin-right: 0; margin-bottom: 20px; }
+            .products { grid-template-columns: 1fr; }
+            .articles { flex-direction: column; }
+            .article-card { margin-right: 0; margin-bottom: 20px; }
+            .section, .container, .confirmation-page { max-width: 100%; padding: 10px; }
+            .header-main > div:last-child { display: flex; justify-content: center; gap: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -407,7 +435,6 @@
         <div id="checkout-summary" data-test="summary-display"></div>
     </div>
 
-    <!-- New Test Scenarios Section -->
     <div class="section container" id="test-scenarios">
         <h2>Test Scenarios</h2>
         <div class="form-group">
@@ -420,10 +447,49 @@
         <div class="form-group">
             <button id="downloadTestFile" data-test="download-test-button" onclick="downloadTestFile()" disabled>Download Last Uploaded File</button>
         </div>
+        <div class="table-scenario">
+            <h3>Test Scenario: Product Inventory</h3>
+            <table data-test="inventory-table">
+                <thead>
+                    <tr>
+                        <th data-test="table-header-id">ID</th>
+                        <th data-test="table-header-name">Product Name</th>
+                        <th data-test="table-header-category">Category</th>
+                        <th data-test="table-header-price">Price</th>
+                        <th data-test="table-header-stock">Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-test="table-row-1">
+                        <td data-test="row-1-id">1</td>
+                        <td data-test="row-1-name">Apple iPhone 14</td>
+                        <td data-test="row-1-category">Phones</td>
+                        <td data-test="row-1-price">$799</td>
+                        <td data-test="row-1-stock">25</td>
+                    </tr>
+                    <tr data-test="table-row-2">
+                        <td data-test="row-2-id">2</td>
+                        <td data-test="row-2-name">Wireless Headphones</td>
+                        <td data-test="row-2-category">Audio Devices</td>
+                        <td data-test="row-2-price">$80</td>
+                        <td data-test="row-2-stock">50</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="form-group" style="margin-top: 20px;">
+            <h3>Test Scenario: Dynamic Content</h3>
+            <button id="loadContent" data-test="load-content-button" onclick="loadDynamicContent()">Load Dynamic Content</button>
+            <div id="dynamic-content" data-test="dynamic-content"></div>
+        </div>
+        <div class="form-group" style="margin-top: 20px;">
+            <h3>Test Scenario: Visibility Toggle</h3>
+            <button id="toggleVisibility" data-test="toggle-visibility-button" onclick="toggleTestContent()">Toggle Content</button>
+            <div id="toggle-content" data-test="toggle-content">This content can be toggled on/off</div>
+        </div>
     </div>
 
     <script>
-        // Load registered users from localStorage on page load
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
             'khan': 'password123',
             'testuser2': 'pass456'
@@ -431,11 +497,10 @@
         let loggedInUser = localStorage.getItem('loggedInUser') || null;
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let previousSection = 'shop'; // Track the previous section for back button
-        let uploadedFileData = null; // Store uploaded file data
-        let uploadedFileName = null; // Store uploaded file name
+        let previousSection = 'shop';
+        let uploadedFileData = null;
+        let uploadedFileName = null;
 
-        // Promotional data for multiple items
         const promoItems = [
             {
                 item: 'Wireless Headphones',
@@ -465,7 +530,6 @@
 
         let currentPromoIndex = 0;
 
-        // Save data to localStorage
         function saveData() {
             localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
             localStorage.setItem('loggedInUser', loggedInUser);
@@ -475,7 +539,6 @@
             updatePromoBanner();
         }
 
-        // Update Promo Banner
         function updatePromoBanner() {
             const promoBanner = document.getElementById('promo-banner');
             const promoTitle = document.getElementById('promo-title');
@@ -505,9 +568,8 @@
             }, 5000);
         }
 
-        // Show Section and Reset Search
         function showSection(sectionId) {
-            previousSection = document.querySelector('.section.active')?.id || 'shop'; // Store current section
+            previousSection = document.querySelector('.section.active')?.id || 'shop';
             document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             if (sectionId === 'cart') {
@@ -524,19 +586,16 @@
             updateWelcomeMessage();
         }
 
-        // Go Back to Previous Section
         function goBack() {
             showSection(previousSection);
         }
 
-        // Filter Category
         function filterCategory(category) {
             showSection('shop');
             document.getElementById('category-filter').value = category;
             searchProducts();
         }
 
-        // Initial load - Load "Shop by Category" directly
         document.addEventListener('DOMContentLoaded', () => {
             showSection('shop');
             saveData();
@@ -544,7 +603,6 @@
             updatePromoBanner();
         });
 
-        // Search Products
         function searchProducts() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const category = document.getElementById('category-filter').value;
@@ -562,7 +620,6 @@
             });
         }
 
-        // Clear Search Input and Reset Product View
         function clearSearch() {
             const searchInput = document.getElementById('searchInput');
             const categoryFilter = document.getElementById('category-filter');
@@ -574,7 +631,6 @@
             productCards.forEach(card => card.style.display = 'block');
         }
 
-        // Login Form Submission
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -591,7 +647,6 @@
             }
         });
 
-        // Register Form Submission
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const regUsername = document.getElementById('regUsername').value;
@@ -623,62 +678,57 @@
             document.getElementById('registerForm').reset();
         });
 
-        // Select Product and Add to Cart
         function selectProduct(name, price) {
-    const productCard = document.querySelector(`.product-card[data-test*="${name.toLowerCase().replace(/\s+/g, '-')}-"]`);
-    if (productCard) {
-        const loadingIndicator = productCard.querySelector('.loading-indicator');
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'flex';
+            const productCard = document.querySelector(`.product-card[data-test*="${name.toLowerCase().replace(/\s+/g, '-')}-"]`);
+            if (productCard) {
+                const loadingIndicator = productCard.querySelector('.loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'flex';
+                }
+            }
+
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.min = '1';
+            quantityInput.max = '10';
+            quantityInput.value = '1';
+            quantityInput.style.position = 'fixed';
+            quantityInput.style.top = '0';
+            quantityInput.style.left = '0';
+            quantityInput.style.opacity = '0';
+            document.body.appendChild(quantityInput);
+
+            let quantity = parseInt(quantityInput.value);
+            if (isNaN(quantity) || quantity < 1 || quantity > 10) {
+                document.getElementById('message').textContent = "Please enter a valid quantity between 1 and 10.";
+                if (productCard && loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+                return;
+            }
+
+            let finalPrice = price;
+            let discountApplied = null;
+            const promo = promoItems.find(p => p.item === name);
+            if (promo) {
+                finalPrice = promo.discountedPrice;
+                discountApplied = promo.discountPercentage;
+            }
+
+            cart.push({ name, originalPrice: price, finalPrice, quantity, discountApplied });
+            saveData();
+            updateCartDisplay();
+            updateTotal();
+
+            if (productCard && loadingIndicator) {
+                setTimeout(() => {
+                    loadingIndicator.style.display = 'none';
+                }, 300);
+            }
+
+            document.getElementById('message').textContent = `${name} (x${quantity}) added to cart!${discountApplied ? ` (${discountApplied}% Discount Applied)` : ''}`;
         }
-    }
 
-    // Use an input field for quantity instead of prompt
-    const quantityInput = document.createElement('input');
-    quantityInput.type = 'number';
-    quantityInput.min = '1';
-    quantityInput.max = '10';
-    quantityInput.value = '1';
-    quantityInput.style.position = 'fixed';
-    quantityInput.style.top = '0';
-    quantityInput.style.left = '0';
-    quantityInput.style.opacity = '0';
-    document.body.appendChild(quantityInput);
-
-    let quantity = parseInt(quantityInput.value);
-    if (isNaN(quantity) || quantity < 1 || quantity > 10) {
-        // Display error message in DOM instead of alert
-        document.getElementById('message').textContent = "Please enter a valid quantity between 1 and 10.";
-        if (productCard && loadingIndicator) {
-            loadingIndicator.style.display = 'none';
-        }
-        return;
-    }
-
-    let finalPrice = price;
-    let discountApplied = null;
-    const promo = promoItems.find(p => p.item === name);
-    if (promo) {
-        finalPrice = promo.discountedPrice;
-        discountApplied = promo.discountPercentage;
-    }
-
-    cart.push({ name, originalPrice: price, finalPrice, quantity, discountApplied });
-    saveData();
-    updateCartDisplay();
-    updateTotal();
-
-    if (productCard && loadingIndicator) {
-        setTimeout(() => {
-            loadingIndicator.style.display = 'none';
-        }, 300);
-    }
-
-    // Display success message in DOM instead of alert
-    document.getElementById('message').textContent = `${name} (x${quantity}) added to cart!${discountApplied ? ` (${discountApplied}% Discount Applied)` : ''}`;
-}
-
-        // Add to Favorites
         function addToFavorites(name, price) {
             if (!favorites.some(item => item.name === name)) {
                 favorites.push({ name, price });
@@ -690,7 +740,6 @@
             }
         }
 
-        // Update Cart Display
         function updateCartDisplay() {
             const cartItems = document.getElementById('cart-items');
             cartItems.innerHTML = '<h3>Cart Items:</h3>';
@@ -699,7 +748,6 @@
             });
         }
 
-        // Remove Item from Cart
         function removeFromCart(name) {
             cart = cart.filter(item => item.name !== name);
             saveData();
@@ -707,7 +755,6 @@
             updateTotal();
         }
 
-        // Update Favorites List
         function updateFavoritesList() {
             const favoritesList = document.getElementById('favoritesList');
             favoritesList.innerHTML = '';
@@ -718,19 +765,16 @@
             });
         }
 
-        // Update Checkout Total
         function updateTotal() {
             const total = cart.reduce((sum, item) => sum + (item.finalPrice * item.quantity), 0);
             document.getElementById('total').textContent = `Total: $${total.toFixed(2) || 0}`;
             updateCartCount();
         }
 
-        // Update Cart Count
         function updateCartCount() {
             document.getElementById('cart-count').textContent = cart.length;
         }
 
-        // Checkout Form Validation and Submission
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const fullName = document.getElementById('fullName').value.trim();
@@ -768,19 +812,57 @@
             if (!cvvRegex.test(cvv)) { checkoutError.textContent = 'CVV must be exactly 3 digits.'; return; }
 
             const total = cart.reduce((sum, item) => sum + (item.finalPrice * item.quantity), 0);
-            let itemsSummary = '<h3>Items Purchased:</h3><ul>';
-            cart.forEach(item => {
-                itemsSummary += `<li>${item.name} - $${item.originalPrice} x ${item.quantity} = $${(item.finalPrice * item.quantity).toFixed(2)} ${item.discountApplied ? `(${item.discountApplied}% Discount Applied)` : ''}</li>`;
-            });
-            itemsSummary += '</ul>';
-            checkoutSummary.innerHTML = `${itemsSummary}Order Summary: ${fullName}, ${address}, Payment: ${payment}, Total: $${total.toFixed(2)}`;
+            const checkoutData = {
+                fullName,
+                address,
+                cardHolder,
+                payment,
+                total,
+                items: [...cart]
+            };
+
+            localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
             cart = [];
             saveData();
-            updateCartDisplay();
-            updateTotal();
+            showConfirmationPage(checkoutData);
         });
 
-        // Update Welcome Message
+        function showConfirmationPage(checkoutData) {
+            document.body.innerHTML = `
+                <div class="confirmation-page">
+                    <h2>Order Confirmation</h2>
+                    <p>Thank you for your purchase, ${checkoutData.fullName}!</p>
+                    <p>Shipping to: ${checkoutData.address}</p>
+                    <p>Payment Method: ${checkoutData.payment}</p>
+                    <h3>Order Summary</h3>
+                    <table data-test="confirmation-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Original Price</th>
+                                <th>Quantity</th>
+                                <th>Discount</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${checkoutData.items.map(item => `
+                                <tr data-test="confirmation-row-${item.name.toLowerCase().replace(/\s+/g, '-')}">
+                                    <td>${item.name}</td>
+                                    <td>$${item.originalPrice}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.discountApplied ? `${item.discountApplied}%` : 'None'}</td>
+                                    <td>$${(item.finalPrice * item.quantity).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <p><strong>Total: $${checkoutData.total.toFixed(2)}</strong></p>
+                    <button onclick="window.location.reload()" data-test="return-button">Return to Shop</button>
+                </div>
+            `;
+        }
+
         function updateWelcomeMessage() {
             const welcomeMessage = document.getElementById('welcome-message');
             const checkoutTitle = document.getElementById('checkout-title');
@@ -797,7 +879,6 @@
             }
         }
 
-        // Update Account Section Based on Login Status
         function updateAccountSection() {
             const loginForm = document.getElementById('loginForm');
             const logoutSection = document.getElementById('logout-section');
@@ -823,7 +904,6 @@
             }
         }
 
-        // Logout Function
         function logout() {
             loggedInUser = null;
             saveData();
@@ -832,7 +912,6 @@
             updateWelcomeMessage();
         }
 
-        // Upload Test File Function
         function uploadTestFile() {
             const fileInput = document.getElementById('testFileUpload');
             const uploadSuccess = document.getElementById('upload-success');
@@ -851,28 +930,27 @@
             const reader = new FileReader();
 
             reader.onload = function(e) {
-                uploadedFileData = e.target.result; // Store file content
-                uploadedFileName = file.name; // Store file name
+                uploadedFileData = e.target.result;
+                uploadedFileName = file.name;
                 uploadSuccess.textContent = `File "${uploadedFileName}" uploaded successfully!`;
-                downloadButton.disabled = false; // Enable download button
-                fileInput.value = ''; // Reset file input
+                downloadButton.disabled = false;
+                fileInput.value = '';
             };
 
             reader.onerror = function() {
                 uploadError.textContent = 'Error reading the file. Please try again.';
             };
 
-            reader.readAsText(file); // Read as text; adjust based on file type if needed
+            reader.readAsText(file);
         }
 
-        // Download Test File Function
         function downloadTestFile() {
             if (!uploadedFileData || !uploadedFileName) {
                 document.getElementById('upload-error').textContent = 'No file available for download.';
                 return;
             }
 
-            const blob = new Blob([uploadedFileData], { type: 'text/plain' }); // Adjust MIME type if needed
+            const blob = new Blob([uploadedFileData], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -881,6 +959,28 @@
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
+        }
+
+        function loadDynamicContent() {
+            const dynamicContent = document.getElementById('dynamic-content');
+            dynamicContent.innerHTML = '<p>Loading...</p>';
+            
+            setTimeout(() => {
+                const content = `
+                    <div data-test="dynamic-loaded-content">
+                        <h4>Dynamic Product: Special Offer</h4>
+                        <p data-test="dynamic-price">Price: $99.99</p>
+                        <p data-test="dynamic-description">Limited time offer item loaded dynamically.</p>
+                        <button data-test="dynamic-add-button" onclick="selectProduct('Dynamic Offer', 99.99)">Add to Cart</button>
+                    </div>
+                `;
+                dynamicContent.innerHTML = content;
+            }, 2000);
+        }
+
+        function toggleTestContent() {
+            const toggleContent = document.getElementById('toggle-content');
+            toggleContent.style.display = toggleContent.style.display === 'none' ? 'block' : 'none';
         }
     </script>
 </body>
