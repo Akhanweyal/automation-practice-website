@@ -29,7 +29,7 @@ const cartbutton = '[data-test="cart-link"]'
       });
     });
   });
-  it.only('user should be able to checkout', () => {
+  it('user should be able to checkout', () => {
     cy.selectCategoryAndAddItemsToCart('Phones', 'data-test="add-to-cart-phone-', 1);
     cy.get(cartbutton).click();
     // filing out the checkout form and checkouting
@@ -44,7 +44,13 @@ const cartbutton = '[data-test="cart-link"]'
     
     cy.get('[data-test="checkout-button"]').click({ force: true });
     cy.contains('Order Confirmation').should('contain','Order Confirmation').should('exist');
-    
+
+  })
+  it.only('user should be able to vailidate discount to product checkout applied or not', () => {
+    const discuntedPRoduct =[{name:'WIRELESS HEADPHONES',discount:'SAVE 50% OFF'},{name:'PORTABLE SPEAKER',discount:'SAVE 30% OFF'},{name:'SMARTWATCH',discount:'SAVE 20% OFF'}]
+    cy.get('#promo-title').each((el, index) => {
+      cy.wrap(el).should('contain.text', discuntedPRoduct[index].name)
+    })
 
   })
 })
